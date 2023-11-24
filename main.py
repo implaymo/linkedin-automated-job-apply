@@ -55,14 +55,19 @@ def save_job():
 jobs = WebDriverWait(driver, 10).until(
     EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.job-card-container__link.job-card-list__title')))
 
+jobs_applied = []
+
 for i in range(len(jobs)):
     try:
         # Re-locate the jobs after each iteration
         jobs = WebDriverWait(driver, 10).until(
             EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.job-card-container__link.job-card-list__title'))
         )
+        if jobs[i] not in jobs_applied:
+            jobs_applied.append(jobs[i])
+        else:
+            continue
 
-        print(jobs[i].text)
         jobs[i].click()
 
         # Introduce a delay or use WebDriverWait for the job details to load
