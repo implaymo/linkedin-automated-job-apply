@@ -72,7 +72,6 @@ for i in range(len(jobs)):
 
         # Introduce a delay or use WebDriverWait for the job details to load
         time.sleep(2)  # You can adjust the sleep time based on your observation
-
         save_job()
 
     except Exception as e:
