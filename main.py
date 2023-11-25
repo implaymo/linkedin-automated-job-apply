@@ -52,9 +52,12 @@ def save_job():
 
 def scroll_down():
     try:
-        scroll_button = scroll_button = (WebDriverWait(driver, 5).until
-                                         (EC.visibility_of_element_located((By.CLASS_NAME, 'jobs-search-results-list'))))
-        driver.execute_script("arguments[0].scrollTo(0, arguments[0].scrollHeight);", scroll_button)
+        # Find the scrollable element
+        scroll_element = WebDriverWait(driver, 5).until(
+            EC.visibility_of_element_located((By.CLASS_NAME, 'jobs-search-results-list')))
+
+        # Scroll a fixed amount (you can adjust the value based on your preference)
+        driver.execute_script("arguments[0].scrollBy(0, 50);", scroll_element)
     except Exception as e:
         print(f"An error occurred scrolling: {e}")
 
@@ -68,27 +71,31 @@ def check_if_saved():
 jobs = WebDriverWait(driver, 10).until(
     EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
                                                           'job-card-container__link.job-card-list__title')))
+while True:
+    try:
+        for i in range(len(jobs)):
+            # Re-locate the jobs after each iteration
+            jobs = WebDriverWait(driver, 10).until(
+                EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
+                                                                      'job-card-container__link.job-card-list__title'))
+            )
+            # Click the new job on the list
+            jobs[i].click()
 
-try:
-    for i in range(len(jobs)):
-        # Re-locate the jobs after each iteration
-        jobs = WebDriverWait(driver, 10).until(
-            EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
-                                                                  'job-card-container__link.job-card-list__title'))
-        )
-        # Click the new job on the list
-        jobs[i].click()
+            # Checks if Bot as already saved job
+            if check_if_saved() == "Saved":
+                scroll_down()
+                time.sleep(2)
+                continue
 
-        # Checks if Bot as already saved job
-        if check_if_saved() == "Saved":
-            continue
 
-        # Introduce a delay
-        time.sleep(2)
-        save_job()
+            # Introduce a delay
+            time.sleep(2)
+            save_job()
+            scroll_down()
 
-except Exception as e:
-    print(f"An error occurred: {e}")
-finally:
-    driver.quit()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        driver.quit()
 
