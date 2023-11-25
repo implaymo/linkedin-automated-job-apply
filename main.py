@@ -67,35 +67,38 @@ def check_if_saved():
     return saved.text
 
 
-# Find all jobs
-jobs = WebDriverWait(driver, 10).until(
-    EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
+def find_all_jobs():
+    return WebDriverWait(driver, 10).until(
+        EC.visibility_of_all_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
                                                           'job-card-container__link.job-card-list__title')))
-while True:
-    try:
-        for i in range(len(jobs)):
-            # Re-locate the jobs after each iteration
-            jobs = WebDriverWait(driver, 10).until(
-                EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
-                                                                      'job-card-container__link.job-card-list__title'))
-            )
-            # Click the new job on the list
-            jobs[i].click()
-
-            # Checks if Bot as already saved job
-            if check_if_saved() == "Saved":
-                scroll_down()
-                time.sleep(2)
-                continue
 
 
-            # Introduce a delay
-            time.sleep(2)
-            save_job()
+
+jobs = find_all_jobs()
+try:
+    for i in range(len(jobs)):
+        # Re-locate the jobs after each iteration
+        jobs = WebDriverWait(driver, 10).until(
+            EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
+                                                                  'job-card-container__link.job-card-list__title'))
+        )
+        # Click the new job on the list
+        jobs[i].click()
+
+        # Checks if Bot as already saved job
+        if check_if_saved() == "Saved":
             scroll_down()
+            time.sleep(2)
+            continue
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        driver.quit()
+
+        # Introduce a delay
+        time.sleep(2)
+        save_job()
+        scroll_down()
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+finally:
+    driver.quit()
 
