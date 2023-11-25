@@ -40,42 +40,55 @@ def save_job():
     """Clicks SAVE to save the job"""
     try:
         save_button = WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="main"]/div/div[2]/div/div[2]/div/div[1]/div/div[1]/div/div[1]/div[1]/div[4]/div/button'))
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="main"]/div/div[2]'
+                                                        '/div/div[2]/div/div[1]/div/div[1]/div'
+                                                        '/div[1]/div[1]/div[4]/div/button'))
         )
         save_button.click()
-
-        print("Actions performed successfully!")
     except TimeoutError:
         print("Timed out waiting for the element to be visible.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred saving jobs: {e}")
+
+def scroll_down():
+    try:
+        scroll_button = scroll_button = (WebDriverWait(driver, 5).until
+                                         (EC.visibility_of_element_located((By.CLASS_NAME, 'jobs-search-results-list'))))
+        driver.execute_script("arguments[0].scrollTo(0, arguments[0].scrollHeight);", scroll_button)
+    except Exception as e:
+        print(f"An error occurred scrolling: {e}")
+
+def check_if_saved():
+    saved = driver.find_element(By.XPATH, '//*[@id="main"]/div/div[2]/div/div[2]'
+                                          '/div/div[1]/div/div[1]/div/div[1]/div[1]/div[4]/div/button/span[1]')
+    return saved.text
 
 
 # Find all jobs
 jobs = WebDriverWait(driver, 10).until(
-    EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.job-card-container__link.job-card-list__title')))
+    EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
+                                                          'job-card-container__link.job-card-list__title')))
 
-jobs_applied = []
-
-for i in range(len(jobs)):
-    try:
+try:
+    for i in range(len(jobs)):
         # Re-locate the jobs after each iteration
         jobs = WebDriverWait(driver, 10).until(
-            EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.job-card-container__link.job-card-list__title'))
+            EC.visibility_of_any_elements_located((By.CLASS_NAME, 'disabled.ember-view.'
+                                                                  'job-card-container__link.job-card-list__title'))
         )
-        if jobs[i] not in jobs_applied:
-            jobs_applied.append(jobs[i])
-        else:
-            continue
-
+        # Click the new job on the list
         jobs[i].click()
 
-        # Introduce a delay or use WebDriverWait for the job details to load
-        time.sleep(2)  # You can adjust the sleep time based on your observation
+        # Checks if Bot as already saved job
+        if check_if_saved() == "Saved":
+            continue
+
+        # Introduce a delay
+        time.sleep(2)
         save_job()
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        driver.quit()
+except Exception as e:
+    print(f"An error occurred: {e}")
+finally:
+    driver.quit()
 
